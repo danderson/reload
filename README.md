@@ -20,7 +20,7 @@ Then reference it through a script tag in your HTML:
 <!DOCTYPE html>
 <html>
   <head>
-    <script defer src="/.magic/live"></script>
+    <script src="/.magic/live"></script>
   </head>
   <body>
     <p>
