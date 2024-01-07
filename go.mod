@@ -1,4 +1,4 @@
-module go.universe.tf/reload
+module github.com/danderson/reload
 
 go 1.21.5
 
