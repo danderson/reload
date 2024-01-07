@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"time"
 
-	"go.universe.tf/reload"
+	"github.com/danderson/reload"
 )
 
 func main() {
