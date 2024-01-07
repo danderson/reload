@@ -2,30 +2,16 @@ function (cookie) {
     var url = new URL(document.currentScript.src);
     url.protocol = url.protocol == "https:" ? "wss:" : "ws:";
 
-    var last = cookie;
-    var timeout;
-
-    function resetBackoff() {
-        timeout = 100;
-    };
-
-    function backoff() {
-        if (timeout > 2000) {
-            return;
-        }
-        timeout = timeout * 2;
-    };
+    var retry = 50; // ms
 
     function connect() {
+        retry = Math.min(retry*2, 2000);
+
         const socket = new WebSocket(url);
 
         socket.onmessage = (event) => {
             if (event.data !== "") {
-                if (last === "") {
-                    last = event.data;
-                }
-
-                if (last !== event.data) {
+                if (cookie !== event.data) {
                     console.log("[Hot Reload] Reloading");
                     socket.close();
                     location.reload();
@@ -36,19 +22,17 @@ function (cookie) {
         };
 
         socket.onopen = () => {
-            resetBackoff();
+            retry = 100;
             console.log("[Hot Reload] Connected");
         };
 
         socket.onclose = () => {
             const id = setTimeout(function () {
                 clearTimeout(id);
-                backoff();
                 connect();
-            }, timeout);
+            }, retry);
         };
     }
 
-    resetBackoff();
     connect();
 }
