@@ -1,3 +1,10 @@
+// Package reload provides an HTTP handler that implements simple live
+// reloading for Go web servers.
+//
+// To use, register this handler in your HTTP server, then load it via
+// a <script> tag in your HTML. The page will be reloaded whenever the
+// server restarts, and when explicitly requested by invoking the
+// handler's Reload function.
 package reload
 
 import (
@@ -11,6 +18,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// Reloader is a live-reloading HTTP handler.
 type Reloader struct {
 	mu      sync.Mutex
 	cookie  []byte
@@ -20,6 +28,7 @@ type Reloader struct {
 //go:embed reload.js
 var js []byte
 
+// ServeHTTP serves the live reloading script and websocket handler.
 func (rl *Reloader) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if websocket.IsWebSocketUpgrade(r) {
 		rl.socket(w, r)
@@ -30,6 +39,13 @@ func (rl *Reloader) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	cookie, _ := rl.getState()
 	fmt.Fprintf(w, "(%s)(%q)", js, cookie)
+}
+
+// Reload triggers an immediate reload of all clients.
+func (rl *Reloader) Reload() {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+	rl.reloadLocked()
 }
 
 func (rl *Reloader) socket(w http.ResponseWriter, r *http.Request) {
@@ -74,12 +90,6 @@ func (rl *Reloader) getState() (cookie []byte, refresh <-chan struct{}) {
 		rl.reloadLocked()
 	}
 	return rl.cookie, rl.refresh
-}
-
-func (rl *Reloader) Reload() {
-	rl.mu.Lock()
-	defer rl.mu.Unlock()
-	rl.reloadLocked()
 }
 
 func (rl *Reloader) reloadLocked() {
