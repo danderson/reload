@@ -1,5 +1,7 @@
 # Live Reload for Go
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/danderson/reload.svg)](https://pkg.go.dev/github.com/danderson/reload)
+
 This package provides very simple live reloading for Go web
 servers. It is intended purely for development, and is not specialized
 to any web or client framework. The reload is literally an automated
