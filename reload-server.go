@@ -1,5 +1,7 @@
 //go:build ignore
 
+// This is just a test server that demonstrates using the reload
+// handler.
 package main
 
 import (
